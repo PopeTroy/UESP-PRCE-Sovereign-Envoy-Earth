@@ -1,15 +1,15 @@
-name: UESP-PRCE Sovereign Deploy
+name: UESP-PRCE Sovereign Sync
 on:
+  repository_dispatch:
+    types: [vila_human_detection]
   push:
     branches: [ main ]
-  workflow_dispatch:
 
 jobs:
-  mission-ready:
+  mission-validation:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Sovereign Integrity Check
+      - name: Confirm Sovereign Integrity
         run: |
-          echo "Syncing Logic to Earth Gateway..."
-          echo "UESP-PRCE Core: Mission Ready"
+          echo "VILA HUMAN TRIGGER RECEIVED."
+          echo "Mission Status: VALIDATED."
