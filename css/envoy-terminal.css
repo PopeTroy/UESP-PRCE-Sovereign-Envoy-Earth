@@ -1,36 +1,22 @@
 #envoy-terminal {
-    background: #000;
-    color: #00ff41;
+    background: #000 !important;
+    color: #00ff41 !important;
     font-family: 'Courier New', monospace;
-    padding: 15px;
+    padding: 20px;
     border: 3px solid #00ff41;
-    border-radius: 5px;
-    overflow: hidden;
+    border-radius: 10px;
 }
-
-#rover-feed {
+#rover-lens {
     width: 100%;
-    max-width: 600px;
-    border: 1px solid #333;
-    filter: sepia(50%) hue-rotate(90deg) contrast(1.2);
+    border: 1px solid #222;
+    background: #111;
+    filter: contrast(1.1) brightness(0.9);
 }
-
-#hive-output {
-    margin-top: 10px;
-    padding: 10px;
-    background: rgba(0, 50, 0, 0.3);
-    border-left: 4px solid #00ff41;
-    min-height: 80px;
-    font-size: 14px;
-    line-height: 1.4;
+.alert-mammal {
+    animation: percaphonel-flash 0.5s infinite;
 }
-
-.alert-mode {
-    animation: percaphonel-flash 0.8s infinite;
-}
-
 @keyframes percaphonel-flash {
     0% { border-color: #00ff41; }
-    50% { border-color: #ff00ff; box-shadow: 0 0 20px #ff00ff; }
+    50% { border-color: #ff00ff; }
     100% { border-color: #00ff41; }
 }
