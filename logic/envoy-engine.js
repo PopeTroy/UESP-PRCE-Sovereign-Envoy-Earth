@@ -3,43 +3,46 @@ window.EnvoyEngine = {
         try {
             // STEP 1: NVIDIA (Visual Foundation)
             const nvidiaAnalysis = await puter.ai.chat(
-                "Perform 80-AI visual stoichiometry. Identify biotic morphology (Human/Animal).", 
-                video, 
-                { model: 'nvidia/llama-3.1-405b-instruct' }
+                "80-AI Stoichiometry: Identify bipedal biotic signatures (Humans).", 
+                video, { model: 'nvidia/llama-3.1-405b-instruct' }
             );
 
-            // STEP 2: GROQ (Rapid Overseer)
+            // STEP 2: GROQ (Logic Overseer)
             const groqDecision = await puter.ai.chat(
-                `Oversee this data: "${nvidiaAnalysis}". Determine if deterrent is needed. Return 'STATUS: VALIDATED' or 'STATUS: THREAT'.`,
+                `Analyze: "${nvidiaAnalysis}". Return 'VALIDATED' if human shape is identified.`,
                 { model: 'groq/llama-3.1-70b-versatile' }
             );
 
-            // STEP 3: PUTER AI (Refining & Sync)
-            const finalBrief = await puter.ai.chat(
-                `Refine this report for terminal output: Nvidia: ${nvidiaAnalysis} | Groq: ${groqDecision}`,
-                { model: 'gemini-1.5-flash' }
-            );
+            // STEP 3: PUTER (Refinement)
+            const finalBrief = await puter.ai.chat(`Summarize: ${nvidiaAnalysis}`, { model: 'gemini-1.5-flash' });
 
-            // Daikokuten Cloud Sync
-            const user = await puter.auth.getUser();
-            await puter.fs.write(`UESP/logs/diag_${Date.now()}.txt`, finalBrief);
-
-            // GitHub Dispatch (Triggered by Groq's validation)
+            // ⚡ PROXY DISPATCH (Bypassing CORS)
             if (githubToken && groqDecision.includes('VALIDATED')) {
-                this.triggerGithub(githubToken);
+                this.triggerGithubProxy(githubToken);
             }
 
-            return { analysis: finalBrief, id: user.uuid.substring(0,8) };
+            return { analysis: finalBrief, status: groqDecision };
         } catch (err) {
-            return `CORE_FAILURE: ${err.message}`;
+            return `BRIDGE_CRASH: ${err.message}`;
         }
     },
 
-    async triggerGithub(token) {
-        fetch('https://api.github.com/repos/PopeTroy/UESP-PRCE-Sovereign-Envoy-Earth/dispatches', {
+    async triggerGithubProxy(token) {
+        const url = 'https://api.github.com/repos/PopeTroy/UESP-PRCE-Sovereign-Envoy-Earth/dispatches';
+        
+        // Using puter.net.fetch to bypass browser CORS
+        const response = await puter.net.fetch(url, {
             method: 'POST',
-            headers: { 'Authorization': `Bearer ${token}`, 'Accept': 'application/vnd.github+json' },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Accept': 'application/vnd.github+json',
+                'Content-Type': 'application/json',
+                'User-Agent': 'Puter-Cloud-Envoy'
+            },
             body: JSON.stringify({ event_type: 'vila_human_detection' })
         });
+
+        const status = await response.status;
+        console.log(`GitHub Cloud Sync Status: ${status}`);
     }
 };
