@@ -1,0 +1,21 @@
+#envoy-terminal {
+    background: #000;
+    color: #00ff41;
+    font-family: 'Courier New', monospace;
+    padding: 20px;
+    border: 2px solid #00ff41;
+    text-transform: uppercase;
+}
+#rover-feed {
+    width: 100%;
+    border: 1px solid #333;
+    filter: sepia(100%) hue-rotate(80deg) brightness(1.2);
+}
+.percaphonel-active {
+    animation: flash 0.5s infinite;
+}
+@keyframes flash {
+    0% { background: #000; }
+    50% { background: #4b0082; }
+    100% { background: #000; }
+}
