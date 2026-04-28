@@ -1,31 +1,41 @@
 /**
- * UESP-PRCE: Daikokuten Logistics & VILA Logic
- * Core Engine for Earth-Sim Rover
+ * UESP-PRCE: Daikokuten Persistence & VILA Logic
  */
 const EnvoyLogic = {
-    async analyzeBiotic(video) {
+    // Check if the Sovereign Session is active
+    async getSession() {
         try {
-            // Validate that the camera feed is live
-            if (video.paused || video.ended || video.readyState < 2) {
-                return "OFFLINE: WAITING FOR OPTICS...";
-            }
+            const user = await puter.auth.getUser();
+            return user ? user.uuid : null;
+        } catch (err) {
+            return null;
+        }
+    },
 
-            // VILA Identification via Puter.js
-            // We use gemini-2.5-flash-lite for light-speed terrestrial diagnostics
-            const prompt = "MISSION STATUS: Identify humans vs animals. Provide 10-word morphology description. Specify if Percaphonel deterrent is required.";
-            
-            const analysis = await puter.ai.chat(prompt, video, { 
-                model: 'gemini-2.5-flash-lite' 
-            });
+    async analyzeBiotic(video) {
+        // Step 1: Verify Session Integrity
+        const sessionId = await this.getSession();
+        if (!sessionId) {
+            return "SYNC_ERROR: AUTH_REQUIRED_TAP_SCREEN";
+        }
 
-            // Daikokuten Logistics: Zero-Latency Cloud Sync
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            await puter.fs.write(`UESP/telemetry/earth_diag_${timestamp}.txt`, analysis);
+        try {
+            // Step 2: VILA AI Call (The Visual Science)
+            const analysis = await puter.ai.chat(
+                "Identify humans vs animals. Provide 10-word morphology description.", 
+                video, 
+                { model: 'gemini-2.5-flash-lite' }
+            );
+
+            // Step 3: Log with Session ID for traceability
+            const timestamp = Date.now();
+            const logPath = `UESP/logs/${sessionId}/diag_${timestamp}.txt`;
             
-            return analysis;
-        } catch (error) {
-            console.error("HIVE_ERROR:", error);
-            return `LOGISTICS_FAILURE: ${error.message}`;
+            await puter.fs.write(logPath, analysis, { createMissingParents: true });
+
+            return `[ID: ${sessionId.substring(0, 8)}] ${analysis}`;
+        } catch (err) {
+            return `SYNC_ERROR: ${err.message.toUpperCase()}`;
         }
     }
 };
