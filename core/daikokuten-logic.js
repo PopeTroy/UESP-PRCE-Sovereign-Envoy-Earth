@@ -1,19 +1,31 @@
 /**
  * UESP-PRCE: Daikokuten Logistics & VILA Logic
+ * Core Engine for Earth-Sim Rover
  */
 const EnvoyLogic = {
     async analyzeBiotic(video) {
-        // VILA Agent differentiation: Human vs Animal
-        const prompt = "Identify all biotic entities. Differentiate humans from animals. 10-word scientific description.";
-        
-        const analysis = await puter.ai.chat(prompt, video, { 
-            model: 'gemini-2.5-flash-lite' 
-        });
+        try {
+            // Validate that the camera feed is live
+            if (video.paused || video.ended || video.readyState < 2) {
+                return "OFFLINE: WAITING FOR OPTICS...";
+            }
 
-        // Daikokuten Logistics: Compression & Storage
-        const timestamp = new Date().getTime();
-        await puter.fs.write(`UESP_LOGS/mission_${timestamp}.zstd`, analysis);
-        
-        return analysis;
+            // VILA Identification via Puter.js
+            // We use gemini-2.5-flash-lite for light-speed terrestrial diagnostics
+            const prompt = "MISSION STATUS: Identify humans vs animals. Provide 10-word morphology description. Specify if Percaphonel deterrent is required.";
+            
+            const analysis = await puter.ai.chat(prompt, video, { 
+                model: 'gemini-2.5-flash-lite' 
+            });
+
+            // Daikokuten Logistics: Zero-Latency Cloud Sync
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
+            await puter.fs.write(`UESP/telemetry/earth_diag_${timestamp}.txt`, analysis);
+            
+            return analysis;
+        } catch (error) {
+            console.error("HIVE_ERROR:", error);
+            return `LOGISTICS_FAILURE: ${error.message}`;
+        }
     }
 };
