@@ -1,4 +1,4 @@
-puter-python>=0.1.0
+# UESP-PRCE Core Requirements
 groq>=0.5.0
 nvidia-nim-client>=0.1.2
 requests>=2.31.0
