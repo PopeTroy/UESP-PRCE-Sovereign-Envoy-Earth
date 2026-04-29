@@ -8,12 +8,8 @@ jobs:
   mission-validation:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-
       - name: Log 80-AI Human Trigger
         run: |
           echo "MISSION_STATUS: VALIDATED"
-          echo "ORIGIN: Remote Sovereign Envoy"
           echo "TIMESTAMP: $(date)"
-          echo "VILA Logic received and processed via Triple-Core Bridge."
+          echo "Logic received from PopeTroy Remote Envoy."
