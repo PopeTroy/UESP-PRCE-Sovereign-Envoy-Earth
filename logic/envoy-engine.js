@@ -1,61 +1,41 @@
-window.EnvoyEngine = {
-    async runDiagnostic(video, githubToken) {
-        try {
-            // STEP 1: NVIDIA
-            const nvidiaAnalysis = await puter.ai.chat(
-                "80-AI Stoichiometry: Identify bipedal biotic signatures (Humans).", 
-                video, { model: 'nvidia/llama-3.1-405b-instruct' }
-            );
+/**
+ * UESP-PRCE Sovereign Engine
+ * Bridge: GitHub -> WordPress
+ * Logic: Nvidia + Groq + Puter Proxy
+ */
+(function() {
+    window.EnvoyEngine = {
+        async runDiagnostic(video, token) {
+            try {
+                // Triple-Core Synthesis
+                const nvidia = await puter.ai.chat("80-AI Stoichiometry: Identify Human morphology.", video, { model: 'nvidia/llama-3.1-405b-instruct' });
+                const groq = await puter.ai.chat(`Analyze: "${nvidia}". If Human is detected, return 'TRIGGER'.`, { model: 'groq/llama-3.1-70b-versatile' });
+                const refiner = await puter.ai.chat(`Summarize: ${nvidia}`, { model: 'gemini-1.5-flash' });
 
-            // STEP 2: GROQ
-            const groqDecision = await puter.ai.chat(
-                `Analyze: "${nvidiaAnalysis}". Return 'TRIGGER' if a human is detected.`,
-                { model: 'groq/llama-3.1-70b-versatile' }
-            );
+                let syncStatus = "IDLE";
+                if (token && groq.includes('TRIGGER')) {
+                    syncStatus = await this.dispatch(token);
+                }
 
-            // STEP 3: PUTER
-            const finalBrief = await puter.ai.chat(`Summarize: ${nvidiaAnalysis}`, { model: 'gemini-1.5-flash' });
-
-            // ⚡ PROXY DISPATCH WITH AUDIT
-            let dispatchStatus = "SKIPPED";
-            if (githubToken && groqDecision.includes('TRIGGER')) {
-                dispatchStatus = await this.triggerGithubProxy(githubToken);
+                return { analysis: refiner, status: groq, dispatch: syncStatus };
+            } catch (err) {
+                return { analysis: "CORE_OFFLINE", dispatch: err.message };
             }
+        },
 
-            return { 
-                analysis: finalBrief, 
-                status: groqDecision,
-                dispatch: dispatchStatus 
-            };
-        } catch (err) {
-            return `BRIDGE_CRASH: ${err.message}`;
-        }
-    },
-
-    async triggerGithubProxy(token) {
-        const url = 'https://api.github.com/repos/PopeTroy/UESP-PRCE-Sovereign-Envoy-Earth/dispatches';
-        
-        try {
-            const response = await puter.net.fetch(url, {
+        async dispatch(token) {
+            const url = 'https://api.github.com/repos/PopeTroy/UESP-PRCE-Sovereign-Envoy-Earth/dispatches';
+            const res = await puter.net.fetch(url, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Accept': 'application/vnd.github+json',
-                    'X-GitHub-Api-Version': '2022-11-28' // Explicit versioning
+                    'X-GitHub-Api-Version': '2022-11-28'
                 },
-                body: JSON.stringify({ 
-                    event_type: 'vila_human_detection',
-                    client_payload: { unit: "Envoy-01", location: "Kempton Park" } 
-                })
+                body: JSON.stringify({ event_type: 'vila_human_detection' })
             });
-
-            const statusCode = response.status;
-            if (statusCode === 204) return "SUCCESS (204 NO CONTENT)";
-            
-            const errorBody = await response.text();
-            return `FAIL (${statusCode}): ${errorBody.substring(0, 50)}`;
-        } catch (e) {
-            return `FETCH_ERROR: ${e.message}`;
+            return res.status === 204 ? "SUCCESS" : `FAIL_${res.status}`;
         }
-    }
-};
+    };
+    console.log("Sovereign Envoy: GitHub Bridge Established");
+})();
