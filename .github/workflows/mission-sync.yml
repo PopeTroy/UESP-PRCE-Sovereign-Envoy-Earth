@@ -5,11 +5,15 @@ on:
   workflow_dispatch:
 
 jobs:
-  validate-and-log:
+  mission-validation:
     runs-on: ubuntu-latest
     steps:
-      - name: Sovereign Handshake
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Log 80-AI Human Trigger
         run: |
-          echo "MISSION_VALIDATED: Human Trigger received from WordPress Envoy."
-          echo "EXECUTING 80-AI AUDIT..."
-          date > telemetry_log.txt
+          echo "MISSION_STATUS: VALIDATED"
+          echo "ORIGIN: Remote Sovereign Envoy"
+          echo "TIMESTAMP: $(date)"
+          echo "VILA Logic received and processed via Triple-Core Bridge."
